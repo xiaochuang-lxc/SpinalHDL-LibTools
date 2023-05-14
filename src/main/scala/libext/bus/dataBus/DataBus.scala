@@ -3,18 +3,19 @@ package libext.bus.dataBus
 import spinal.core._
 import spinal.lib._
 
-case class DataBusConfig(dataWidth: Int, sopUsed: Boolean = true) {
+case class DataBusConfig(dataWidth: Int, sopUsed: Boolean = true, userWidth: Int = 0) {
   val bytesPerCycle: Int = dataWidth / 8
 }
 
-case class DataBusPayload(dataWidth: Int, sopUsed: Boolean = true) extends Bundle {
+case class DataBusPayload(dataWidth: Int, sopUsed: Boolean = true, userWidth: Int = 0) extends Bundle {
   val eop: Bool = Bool()
   val sop: Bool = sopUsed generate Bool()
   val data: Bits = Bits(dataWidth bits)
   val empty: UInt = UInt(log2Up(dataWidth / 8) bits) //仅eop时允许非0，表示最后一拍有多少无效数据
+  val user: Bits = (userWidth > 0) generate (Bits(userWidth bits))
 }
 
-class DataBus(config: DataBusConfig) extends Stream(DataBusPayload(config.dataWidth, config.sopUsed)) {
+class DataBus(config: DataBusConfig) extends Stream(DataBusPayload(config.dataWidth, config.sopUsed, config.userWidth)) {
 
   def first: Bool = signalCache(this, "first")(if (config.sopUsed) payload.sop else RegNextWhen(payload.eop, fire, True).setCompositeName(this, "first", true))
 

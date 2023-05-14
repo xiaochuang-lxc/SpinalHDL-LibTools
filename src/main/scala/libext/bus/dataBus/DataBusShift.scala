@@ -52,7 +52,11 @@ class DataBusShift(dataBusConfig: DataBusConfig) extends Component {
     whenFalse = (dataBusConfig.bytesPerCycle - avail_byte_num).resized
   )
   //data 信号处理
-  io.port_out.data:= ((io.port_in.data##data_pending)>>byte_consumed@@U(0,3 bits)).resized
+  io.port_out.data := ((io.port_in.data ## data_pending) >> byte_consumed @@ U(0, 3 bits)).resized
+  //user process
+  if (dataBusConfig.userWidth > 0) {
+    io.port_out.user := io.port_in.user
+  }
   /*val data_tmp = Mux(
     sel = byte_consumed.msb & io.port_in.last,
     whenTrue = data_pending ## io.port_in.data, //移位采用byte_consumed_tmp，在port_in尾拍时若出现byte_consumed大于bytesPerCycle，则需要调转拼接排序

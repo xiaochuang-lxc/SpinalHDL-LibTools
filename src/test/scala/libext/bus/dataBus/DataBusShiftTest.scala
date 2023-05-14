@@ -1,10 +1,10 @@
 package libext.bus.dataBus
 
-import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.FunSuite
 import spinal.core.sim._
 
-class DataBusShiftTest extends AnyFunSuite {
-  val dutCompiled = SimConfig.withFstWave.compile(DataBusShiftSimEnv(DataBusConfig(512, true)))
+class DataBusShiftTest extends FunSuite {
+  val dutCompiled = SimConfig.withWave.compile(DataBusShiftSimEnv(DataBusConfig(512, true)))
   test("包长递增，每拍移出固定字节长度") {
     dutCompiled.doSim { dut =>
       dut.init()
