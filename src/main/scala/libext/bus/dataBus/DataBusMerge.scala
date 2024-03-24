@@ -38,7 +38,7 @@ class DataBusMerge(dataBusConfig: DataBusConfig) extends Component {
   }
 
   //avail_num设置
-  val avail_num_cal0 = avail_num - io.port_in.empty
+  val avail_num_cal0 = avail_num - io.port_in.empty //avail_num+dataBusConfig.bytesPerCycle-io.port_in.empty-dataBusConfig.bytesPerCycle
   val avail_num_cal1 = U(dataBusConfig.bytesPerCycle, avail_num.getBitsWidth bits) - io.port_in.empty
   val avail_num_cal2 = (U(1, 1 bits) @@ avail_num(0, log2Up(dataBusConfig.bytesPerCycle) bits)) - io.port_in.empty
   when(port_in_fire) {
@@ -57,7 +57,7 @@ class DataBusMerge(dataBusConfig: DataBusConfig) extends Component {
         sel = package_pending,
         whenTrue = avail_num_cal1, //对应当前报文为单拍报文，此时上一拍报文出现package_pending,当前拍输出只能输出上一拍pending数据，此拍数据pending
         whenFalse = Mux(
-          sel = seat_less | seat_equal,
+          sel =  seat_equal,
           whenTrue = avail_num_cal0, //port_out消耗一拍报文，此时pending报文字节数为为(dataBusConfig.bytesPerCycle-io.port_in.empty+avail_num-dataBusConfig.bytesPerCycle)
           whenFalse = avail_num_cal1 ///报文首拍,且无法送到下游，avail_num累加
         )
