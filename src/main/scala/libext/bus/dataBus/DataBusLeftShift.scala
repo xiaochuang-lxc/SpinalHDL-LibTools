@@ -16,7 +16,14 @@ case class DataBusLeftShift(dataBusConfig: DataBusConfig) extends Component {
   }
   noIoPrefix()
   assert(dataBusConfig.userWidth >= log2Up(dataBusConfig.bytesPerCycle), s"the userWidth is not enough")
-  val data_tmp = RegNextWhen(io.port_in.data, io.port_out.fire)
+  val data_tmp = Reg(Bits(io.port_in.data.getBitsWidth bits)) init (0)
+  when(io.port_out.fire){
+    when(io.port_out.last){
+      data_tmp.clearAll()
+    }otherwise{
+      data_tmp:=io.port_in.data
+    }
+  }
   val offset = io.port_in.user(0, log2Up(dataBusConfig.bytesPerCycle) bits).asUInt //首拍空字节数
   val shift_num = U(dataBusConfig.bytesPerCycle, log2Up(dataBusConfig.bytesPerCycle) + 1 bits) - offset //移位字节数
   val last_cycle_need_delay = offset > io.port_in.empty //判定port_in最后一拍数据需要一拍还是两拍来处理
